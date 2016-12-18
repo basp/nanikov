@@ -24,19 +24,18 @@ delete_handler() ->
 init([]) ->
     {ok, []}.
 
-handle_event({privmsg, Nick, _From, To, Text}, State) ->
+handle_event({privmsg, {Nick, Alts}, _From, To, Text}, State) ->
     % Let's learn some new vocab
     markov_server:seed(Text),
 
-    % TODO: Check for messages to the bot itself (To =:= Nick).
-    % Respond when we encounter some text with our own nick
-    case re:run(Text, Nick, [global, caseless]) of
-        {match, _} -> 
+    Aliases = [Nick | Alts],
+    case matches_any(Text, [global, caseless], Aliases) of
+        true -> 
             Tokens = markov_server:generate(13),
             Msg = string:join(Tokens, " "),
             nani_bot:say(To, Msg),
             {ok, State};
-        _ -> 
+        _ ->
             {ok, State}
     end;
 
@@ -55,3 +54,14 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%%%============================================================================
+%%% gen_event callbacks
+%%%============================================================================
+matches_any(_Text, _Opts, []) -> false;
+
+matches_any(Text, Opts, [H|T]) ->
+    case re:run(Text, H, Opts) of
+        {match, _} -> true;
+        _ -> matches_any(Text, Opts, T)
+    end.
