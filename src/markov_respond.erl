@@ -24,7 +24,7 @@ delete_handler() ->
 init([]) ->
     {ok, []}.
 
-handle_event({privmsg, {Nick, Alts}, _From, To, Text}, State) ->
+handle_event({privmsg, {Nick, Alts}, From, To, Text}, State) ->
     % Let's learn some new vocab
     markov_server:seed(Text),
 
@@ -36,7 +36,15 @@ handle_event({privmsg, {Nick, Alts}, _From, To, Text}, State) ->
             nani_bot:say(To, Msg),
             {ok, State};
         _ ->
-            {ok, State}
+            case re:run(To, Nick, [global, caseless]) of
+                {match, _} ->
+                    Tokens = markov_server:generate(13),
+                    Msg = string:join(Tokens, " "),
+                    nani_bot:say(From, Msg),
+                    {ok, State};
+                _ ->
+                    {ok, State}
+            end
     end;
 
 handle_event(_Event, State) ->
