@@ -64,7 +64,7 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %%%============================================================================
-%%% gen_event callbacks
+%%% Internal functions
 %%%============================================================================
 matches_any(_Text, _Opts, []) -> false;
 
