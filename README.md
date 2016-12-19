@@ -135,7 +135,7 @@ K2 = {B, T}.                            % 5/6
 ```
 
 ## how it's stored internally
-We're using a very simple setup of a table consiting tuples of tokes (ngrams) and a list
+We're using a very simple setup of a table consisting tuples of tokes (ngrams) and a list
 of tokens (candidates). It's a map of *K* `ngram()` to *V* `[token()]` where:
 
 ```
